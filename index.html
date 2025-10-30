@@ -1,2 +1,93 @@
-<!-- index.html -->
-<script>window.location.href = "阿伦遇花小记.html";</script>
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>按月份相册集</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header>
+        <h1>花开四季</h1>
+        <p>按拍摄月份自动排序</p>
+    </header>
+
+    <main id="gallery-container">
+        <!-- 相册内容将由 JavaScript 动态生成 -->
+        <div class="loading">加载中...</div>
+    </main>
+
+    <footer>
+        <p>© 2024 我的相册 | 图片来自图床</p>
+    </footer>
+
+    <script>
+        // 🔧 你只需修改这里的图片数据！
+        const photos = [
+            {
+                url: "https://s3.bmp.ovh/imgs/2025/05/17/9fac0745d3f0fc81.jpg", // 替换为你的图床链接
+                caption: "三色堇：绿化带廉价小花",
+                date: "2025-02-01" // ISO 日期格式
+            },
+            {
+                url: "https://s3.bmp.ovh/imgs/2025/05/19/22c9a28cfc7fc76b.jpg",
+                caption: "紫叶李：花梗长，花瓣白",
+                date: "2025-03-01"
+            },
+            {
+                url: "https://s3.bmp.ovh/imgs/2025/05/18/5e583903346b4d6e.jpg",
+                caption: "樱花",
+                date: "2025-03-01"
+            },
+            {
+                url: "https://s3.bmp.ovh/imgs/2025/05/17/3cca0eeb118f0742.jpg",
+                caption: "梅花：花梗短，花瓣圆",
+                date: "2025-03-01"
+            }
+            // ... 继续添加更多照片
+        ];
+
+        // 按月份分组
+        const groupedByMonth = {};
+        photos.forEach(photo => {
+            const date = new Date(photo.date);
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0'); // 1-12 → "01"-"12"
+            const key = `${year}-${month}`;
+            if (!groupedByMonth[key]) {
+                groupedByMonth[key] = [];
+            }
+            groupedByMonth[key].push(photo);
+        });
+
+        // 按月份升序排序
+        const sortedMonths = Object.keys(groupedByMonth).sort();
+
+        // 生成 HTML
+        const container = document.getElementById('gallery-container');
+        container.innerHTML = '';
+
+        sortedMonths.forEach(monthKey => {
+            const [year, month] = monthKey.split('-');
+            const monthName = new Date(year, month - 1, 1).toLocaleString('zh-CN', { month: 'long' });
+            const monthGroup = groupedByMonth[monthKey];
+
+            const section = document.createElement('section');
+            section.className = 'month-section';
+            section.innerHTML = `
+                <h2>${year}年 ${monthName}</h2>
+                <div class="photo-grid">
+                    ${monthGroup.map(photo => `
+                        <div class="photo-card">
+                            <img src="${photo.url}" alt="${photo.caption}" loading="lazy">
+                            <p class="caption">${photo.caption}</p>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+            container.appendChild(section);
+        });
+    </script>
+</body>
+</html>
+
