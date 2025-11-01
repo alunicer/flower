@@ -254,54 +254,66 @@
         }
 
         @media (max-width: 768px) {
-            .main-container {
-                flex-direction: column;
-            }
+    .main-container {
+        flex-direction: column;
+    }
 
-            .month-nav {
-                width: 100%;
-                position: static;
-                height: auto;
-                padding-right: 0;
-                margin-bottom: 2rem;
-            }
+    .month-nav {
+        width: 100%;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        height: auto;
+        padding-right: 0;
+        margin-bottom: 0;
+        background: #f5f5f7;
+        padding: 1rem 0;
+        border-bottom: 1px solid #eee;
+    }
 
-            #month-list {
-                flex-direction: row;
-                overflow-x: auto;
-                padding-bottom: 0.5rem;
-            }
+    #month-list {
+        flex-direction: row;
+        overflow-x: auto;
+        padding-bottom: 0.5rem;
+        scroll-padding: 0 50%; /* 确保滚动时当前项在中间 */
+        scroll-behavior: smooth; /* 平滑滚动 */
+        -webkit-overflow-scrolling: touch; /* iOS 平滑滚动 */
+    }
 
-            .month-item {
-                min-width: 120px;
-                text-align: center;
-            }
+    .month-item {
+        min-width: 120px;
+        text-align: center;
+        scroll-margin: 0 50%; /* 滚动时对齐到中间 */
+        flex-shrink: 0; /* 防止压缩 */
+    }
 
-            .album-container {
-                padding-left: 0;
-            }
+    .album-container {
+        padding-left: 0;
+        margin-top: 1rem; /* 给目录留出空间 */
+    }
 
-            .page-header h1 {
-                font-size: 2.2rem;
-            }
+    /* 其他现有样式保持不变 */
+    .page-header h1 {
+        font-size: 2.2rem;
+    }
 
-            .photo-group {
-                padding: 1.5rem;
-            }
+    .photo-group {
+        padding: 1.5rem;
+    }
 
-            .group-title {
-                font-size: 1.5rem;
-            }
+    .group-title {
+        font-size: 1.5rem;
+    }
 
-            .photo-grid {
-                grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-                gap: 1rem;
-            }
+    .photo-grid {
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        gap: 1rem;
+    }
 
-            .photo-img {
-                height: 165px;
-            }
-        }
+    .photo-img {
+        height: 165px;
+    }
+}
 
         @media (max-width: 600px) {
             .photo-grid {
@@ -676,22 +688,38 @@
         const navItems = document.querySelectorAll('.month-item');
 
         function highlightCurrentMonth() {
-            let current = '';
-            sections.forEach(section => {
-                const sectionTop = section.offsetTop;
-                const sectionHeight = section.clientHeight;
-                if (window.scrollY >= sectionTop - 300) {
-                    current = section.getAttribute('id');
-                }
-            });
-
-            navItems.forEach(item => {
-                item.classList.remove('active');
-                if (item.getAttribute('href') === `#${current}`) {
-                    item.classList.add('active');
-                }
-            });
+    let current = '';
+    sections.forEach(section => {
+        const sectionTop = section.offsetTop;
+        const sectionHeight = section.clientHeight;
+        if (window.scrollY >= sectionTop - 300) {
+            current = section.getAttribute('id');
         }
+    });
+
+    navItems.forEach(item => {
+        item.classList.remove('active');
+        if (item.getAttribute('href') === `#${current}`) {
+            item.classList.add('active');
+            
+            // 在移动设备上自动滚动到当前月份
+            if (window.innerWidth <= 768) {
+                const container = document.getElementById('month-list');
+                const itemRect = item.getBoundingClientRect();
+                const containerRect = container.getBoundingClientRect();
+                
+                // 计算需要滚动的距离，使当前项居中
+                const scrollLeft = item.offsetLeft - (container.offsetWidth / 2) + (item.offsetWidth / 2);
+                
+                // 平滑滚动到计算的位置
+                container.scrollTo({
+                    left: scrollLeft,
+                    behavior: 'smooth'
+                });
+            }
+        }
+    });
+}
 
         window.addEventListener('scroll', highlightCurrentMonth);
         highlightCurrentMonth(); // 初始调用
